@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-brand: #6172f2;
+  --color-accent: #10b981;
+  --color-surface-900: #0a0c1a;
+  --color-surface-800: #10132a;
+  --color-surface-700: #181c38;
+  --color-surface-600: #222742;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-surface-900 text-gray-100 font-sans antialiased;
+  background: var(--color-surface-900);
+  min-height: 100vh;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+
+.glass-card-hover {
+  @apply glass-card transition-all duration-300;
+}
+.glass-card-hover:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(97, 114, 242, 0.3);
+  box-shadow: 0 0 24px rgba(97, 114, 242, 0.12);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #6172f2 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glow effects */
+.glow-brand {
+  box-shadow: 0 0 20px rgba(97, 114, 242, 0.3), 0 0 40px rgba(97, 114, 242, 0.1);
+}
+.glow-accent {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+}
+
+/* Stage connector line */
+.stage-line {
+  background: linear-gradient(to right, #6172f2, #10b981);
+}
+
+/* Shimmer loading skeleton */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(97, 114, 242, 0.4);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(97, 114, 242, 0.6);
+}
+
+/* Badge variants */
+.badge-high { @apply bg-accent-500/20 text-accent-400 border border-accent-500/30; }
+.badge-medium { @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30; }
+.badge-low { @apply bg-red-500/20 text-red-400 border border-red-500/30; }
+.badge-review { @apply bg-orange-500/20 text-orange-400 border border-orange-500/30; }
+.badge-ok { @apply bg-emerald-500/20 text-emerald-400 border border-emerald-500/30; }
+
+/* Animated border */
+@keyframes border-flow {
+  0%, 100% { border-color: rgba(97, 114, 242, 0.4); }
+  50% { border-color: rgba(16, 185, 129, 0.4); }
+}
+.animated-border {
+  animation: border-flow 3s ease-in-out infinite;
+}
+
+/* Pipeline stage active glow */
+.stage-active {
+  border-color: rgba(97, 114, 242, 0.6) !important;
+  box-shadow: 0 0 0 1px rgba(97, 114, 242, 0.3), 0 4px 20px rgba(97, 114, 242, 0.2) !important;
+}
+.stage-done {
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2) !important;
+}
