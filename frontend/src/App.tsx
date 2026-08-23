@@ -1,18 +1,23 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ProtectedRoute, PublicOnlyRoute } from '@/components/ProtectedRoute';
+import CustomCursor from '@/components/customCursor';
 import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
 import { Dashboard } from '@/pages/Dashboard';
+import NotFound from '@/pages/notFound';
 import './index.css';
 
 function App() {
   return (
     <AuthProvider>
+      {/* Global custom cursor — renders on every page */}
+      <CustomCursor />
+
       <BrowserRouter>
         <Routes>
-          {/* Public home page */}
+          {/* Public landing page */}
           <Route path="/" element={<HomePage />} />
 
           {/* Auth pages — redirect to dashboard if already logged in */}
@@ -28,8 +33,8 @@ function App() {
             <ProtectedRoute><Dashboard /></ProtectedRoute>
           } />
 
-          {/* Catch-all */}
-          <Route path="*" element={<HomePage />} />
+          {/* 404 catch-all */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
