@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import {
   Play, Pause, RotateCcw, ChevronRight,
   Database, ActivitySquare, LayoutDashboard, BarChart2,
-  Info, Wifi, WifiOff
+  Info, Wifi, WifiOff, Sparkles
 } from 'lucide-react';
 import DashboardLayout, { type DashTab } from '@/components/DashboardLayout';
 import { UploadPanel } from '@/components/UploadPanel';
@@ -40,6 +40,16 @@ export const Dashboard: React.FC = () => {
       .then(h => setHealth(h))
       .catch(() => setHealthError(true));
   }, []);
+
+  // Auto evaluate when switching to scorecard if enriched rows exist
+  useEffect(() => {
+    if (tab === 'scorecard' && !metrics) {
+      const validEnriched = enrichedRows.filter(Boolean);
+      if (validEnriched.length > 0) {
+        evaluateBatch(validEnriched).then(setMetrics).catch(() => {});
+      }
+    }
+  }, [tab, enrichedRows, metrics]);
 
   const handleRowsLoaded = useCallback((loaded: InputRow[]) => {
     setRows(loaded);
@@ -102,7 +112,7 @@ export const Dashboard: React.FC = () => {
         const m = await evaluateBatch(result.results);
         setMetrics(m);
       } catch {
-        // Evaluation might fail — not critical
+        // Evaluation failure fallback
       }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -112,6 +122,29 @@ export const Dashboard: React.FC = () => {
         if (running) return { ...s, [running]: 'error' };
         return s;
       });
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleEvaluateScorecard = async () => {
+    setIsRunning(true);
+    try {
+      const validEnriched = enrichedRows.filter(Boolean);
+      if (validEnriched.length > 0) {
+        const m = await evaluateBatch(validEnriched);
+        setMetrics(m);
+      } else {
+        const toRun = rows.slice(0, 5);
+        if (toRun.length > 0) {
+          const res = await runPipeline(toRun);
+          setEnrichedRows(res.results);
+          const m = await evaluateBatch(res.results);
+          setMetrics(m);
+        }
+      }
+    } catch (err) {
+      console.error(err);
     } finally {
       setIsRunning(false);
     }
@@ -220,9 +253,10 @@ export const Dashboard: React.FC = () => {
                 selectedIndices={selectedIndices}
                 onSelectionChange={setSelectedIndices}
                 onRowClick={i => setFocusedRowIdx(i)}
+                onResetData={reset}
               />
               <p className="text-xs text-gray-600 mt-3 text-center">
-                Select up to 20 rows · Click to focus · Then click "Run Pipeline"
+                Select up to 20 rows · Click CURATE to view Explainable AI source documents · Then click "Run Pipeline"
               </p>
             </div>
           )}
@@ -301,9 +335,10 @@ export const Dashboard: React.FC = () => {
                 selectedIndices={selectedIndices}
                 onSelectionChange={setSelectedIndices}
                 onRowClick={i => { setFocusedRowIdx(i); setTab('pipeline'); }}
+                onResetData={reset}
               />
               <p className="text-xs text-gray-600 text-center">
-                Click any row to see the full diff view in the Pipeline tab.
+                Click CURATE on any row to open the Explainable AI Source Document view.
               </p>
             </>
           ) : (
@@ -321,19 +356,43 @@ export const Dashboard: React.FC = () => {
       {/* ══════════════ SCORECARD TAB ══════════════ */}
       {tab === 'scorecard' && (
         <div className="max-w-4xl mx-auto space-y-4">
-          <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
-            <BarChart2 size={15} className="text-brand-400" />
-            Accuracy Scorecard
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+              <BarChart2 size={15} className="text-brand-400" />
+              Accuracy Scorecard
+            </h2>
+            {rows.length > 0 && (
+              <button
+                onClick={handleEvaluateScorecard}
+                disabled={isRunning}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-500 hover:bg-brand-400 text-white text-xs font-bold rounded-xl transition-all shadow-md active:scale-95 disabled:opacity-50"
+              >
+                <Sparkles size={13} />
+                {isRunning ? 'Calculating...' : 'Run Accuracy Evaluation'}
+              </button>
+            )}
+          </div>
+
           {metrics ? (
             <Scorecard metrics={metrics} />
           ) : (
-            <div className="glass-card p-12 text-center">
-              <BarChart2 size={40} className="text-gray-700 mx-auto mb-4" />
-              <p className="text-sm text-gray-500">Run the pipeline to generate accuracy metrics.</p>
-              <p className="text-xs text-gray-600 mt-1">
-                Results are automatically scored against the ground truth CSV.
-              </p>
+            <div className="glass-card p-12 text-center space-y-4">
+              <BarChart2 size={40} className="text-gray-700 mx-auto" />
+              <div>
+                <p className="text-sm text-gray-300 font-semibold">Accuracy Metrics Ready to Generate</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Click the button below to evaluate product predictions against ground truth.
+                </p>
+              </div>
+              {rows.length > 0 && (
+                <button
+                  onClick={handleEvaluateScorecard}
+                  disabled={isRunning}
+                  className="px-4 py-2 bg-brand-500 hover:bg-brand-400 text-white text-xs font-bold rounded-xl transition-all shadow-lg active:scale-95"
+                >
+                  Calculate Scorecard Metrics
+                </button>
+              )}
             </div>
           )}
         </div>
