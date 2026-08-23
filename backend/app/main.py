@@ -41,6 +41,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ─── Auth router ──────────────────────────────────────────────────────────────
+from app.auth import router as auth_router  # noqa: E402
+app.include_router(auth_router)
+
 # ─── Pydantic models ──────────────────────────────────────────────────────────
 
 class InputRow(BaseModel):

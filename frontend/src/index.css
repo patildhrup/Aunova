@@ -115,3 +115,13 @@ body {
   border-color: rgba(16, 185, 129, 0.4) !important;
   box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2) !important;
 }
+
+/* Scroll dot animation */
+@keyframes scroll-dot {
+  0% { transform: translateY(0); opacity: 1; }
+  80% { transform: translateY(14px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+.animate-scroll-dot {
+  animation: scroll-dot 1.8s ease-in-out infinite;
+}
