@@ -26,17 +26,31 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).parent.parent  # backend/
 ROOT_DIR = BASE_DIR.parent               # project root
 
-GROUND_TRUTH_PATH = os.getenv(
-    "GROUND_TRUTH_PATH",
-    str(ROOT_DIR / "Unihack_ Expected Output - Delivery Format.csv"),
+
+def _find_file(env_var: str, filename: str) -> str:
+    env_val = os.getenv(env_var)
+    if env_val and os.path.exists(env_val):
+        return env_val
+    p_data = BASE_DIR / "data" / filename
+    if p_data.exists():
+        return str(p_data)
+    p_backend = BASE_DIR / filename
+    if p_backend.exists():
+        return str(p_backend)
+    p_root = ROOT_DIR / filename
+    if p_root.exists():
+        return str(p_root)
+    return str(p_data)
+
+
+GROUND_TRUTH_PATH = _find_file(
+    "GROUND_TRUTH_PATH", "Unihack_ Expected Output - Delivery Format.csv"
 )
-SAMPLE_INPUT_PATH = os.getenv(
-    "SAMPLE_INPUT_PATH",
-    str(ROOT_DIR / "Unihack_ Sample Dataset - Input.csv"),
+SAMPLE_INPUT_PATH = _find_file(
+    "SAMPLE_INPUT_PATH", "Unihack_ Sample Dataset - Input.csv"
 )
-MANUFACTURER_LIST_PATH = os.getenv(
-    "MANUFACTURER_LIST_PATH",
-    str(ROOT_DIR / "reference" / "UniCat_Manufacturer_and_Brand_List.xlsx"),
+MANUFACTURER_LIST_PATH = _find_file(
+    "MANUFACTURER_LIST_PATH", "reference/UniCat_Manufacturer_and_Brand_List.xlsx"
 )
 
 # ─── Placeholder values to strip ─────────────────────────────────────────────

@@ -1,9 +1,19 @@
 import axios from 'axios';
 
-const BASE = '/api';
+const getBaseUrl = (): string => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl && envUrl.trim() !== '') {
+    const trimmed = envUrl.trim().replace(/\/$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+    return 'https://aunova-backend.vercel.app/api';
+  }
+  return '/api';
+};
 
 export const api = axios.create({
-  baseURL: BASE,
+  baseURL: getBaseUrl(),
   timeout: 120000,
 });
 
